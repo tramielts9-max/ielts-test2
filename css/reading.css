@@ -1,0 +1,103 @@
+/* ==========================================================================
+   css/reading.css - Layout chia 2 cột dành riêng cho Reading
+   ========================================================================== */
+.container {
+  display: flex;
+  gap: 0;
+  max-width: 100%;
+  margin: auto;
+  height: calc(100vh - 165px);
+  min-height: 550px;
+  position: relative;
+  overflow: hidden;
+}
+
+.passage-box {
+  width: 50%;
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: 8px 0 0 8px;
+  overflow-y: auto;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid var(--border-color);
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+}
+
+.passage-box p {
+  margin-bottom: 14px;
+  text-align: justify;
+}
+
+.resizer {
+  width: 10px;
+  background: var(--border-color);
+  cursor: col-resize;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.resizer:hover, .resizer.resizing {
+  background: var(--primary-blue);
+}
+
+.resizer::after {
+  content: '⋮';
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.question-box {
+  flex: 1;
+  width: 50%;
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: 0 8px 8px 0;
+  overflow-y: auto;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid var(--border-color);
+  border-left: none;
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+}
+
+.section-title {
+  font-weight: 700;
+  background: #FDF2F2;
+  color: #8B1518;
+  padding: 10px 14px;
+  border-left: 4px solid var(--primary-blue);
+  margin: 20px 0 14px 0;
+  border-radius: 0 6px 6px 0;
+}
+
+body.dark-theme .section-title {
+  background: #0369a1;
+  color: #ffffff;
+}
+
+/* Định vị text highlight khi click nút */
+.submitted .hl {
+  background-color: #fef08a;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: #1e293b;
+}
+
+.submitted .hl-active {
+  background-color: #fde047 !important;
+  outline: 2px solid #ca8a04;
+}
+
+.submitted .kw {
+  background-color: #86efac !important;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #14532d;
+}
