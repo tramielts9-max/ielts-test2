@@ -1,0 +1,83 @@
+/* ==========================================================================
+   css/base.css - CSS Variables, Dark Mode & Global Reset
+   ========================================================================== */
+:root {
+  --font-size-base: 15px; /* Mặc định 15px cho Reading */
+  --bg-body: #F7F4EF;
+  --bg-card: #FFFFFF;
+  --bg-subcard: #FAF7F2;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #E5DED4;
+  --primary-blue: #8B1518;
+  --primary-dark: #1A1A1A;
+}
+
+body.dark-theme {
+  --bg-body: #0f172a;
+  --bg-card: #1e293b;
+  --bg-subcard: #0f172a;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --primary-blue: #38bdf8;
+  --primary-dark: #020617;
+}
+
+* { 
+  box-sizing: border-box; 
+}
+
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 15px;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+h2 {
+  color: var(--text-main);
+  margin-top: 0;
+  border-bottom: 2px solid var(--primary-blue);
+  padding-bottom: 8px;
+  font-size: 1.25em;
+  font-weight: 700;
+}
+
+h3 {
+  color: var(--primary-blue);
+  margin-top: 10px;
+  font-size: 1.1em;
+  line-height: 1.4;
+}
+
+/* User Highlighting System */
+.user-highlight {
+  background-color: #fecdd3 !important;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.hl-popup {
+  position: fixed;
+  display: none;
+  z-index: 1000;
+  background: #0f172a;
+  color: white;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.hl-popup button {
+  background: transparent;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
