@@ -60,16 +60,18 @@
     window.location.href = 'index.html';
   } else {
     async function loadTest() {
-      // Tự động thử các đường dẫn khác nhau để không bao giờ bị 404
-    const cleanId = testId.endsWith('.json') ? testId.slice(0, -5) : testId;
-      const normalizedDash = cleanId.replace(/\//g, '-'); // Tự động đổi '/' thành '-'
+      // 1. Tự động chuẩn hóa: Đổi mọi dấu "/" thành "-" và xử lý đuôi .json
+      let baseName = testId.trim();
+      if (baseName.endsWith('.json')) baseName = baseName.slice(0, -5);
+      const dashName = baseName.replace(/\//g, '-'); // ví dụ: cam21-test1/p1 -> cam21-test1-p1
 
+      // 2. Danh sách tất cả các nơi file có thể đang nằm
       const possiblePaths = [
-        testId,
+        `${dashName}.json`,             // cam21-test1-p1.json (ở thư mục gốc)
+        `data/${dashName}.json`,        // data/cam21-test1-p1.json (trong thư mục data)
+        `data/tests/${dashName}.json`,  // data/tests/cam21-test1-p1.json
+        testId,                         // đường dẫn nguyên bản
         `${testId}.json`,
-        `${normalizedDash}.json`,            // Tìm file dạng: cam21-lis-test1-p1.json ở thư mục gốc
-        `data/${normalizedDash}.json`,       // Tìm file trong thư mục data/
-        `data/tests/${normalizedDash}.json`, // Tìm file trong data/tests/
         `data/${testId}`,
         `data/${testId}.json`
       ];
@@ -83,6 +85,7 @@
           if (res.ok) {
             data = await res.json();
             loadedPath = path;
+            console.log("✅ Đã tìm thấy và nạp file từ:", path);
             break;
           }
         } catch (e) {}
@@ -91,8 +94,12 @@
       if (!data) {
         document.getElementById('mainContainer').innerHTML = `
           <div style="padding: 30px; text-align: center; width: 100%;">
-            <h3 style="color: #dc2626;">❌ Không tìm thấy dữ liệu đề thi: <code>${testId}</code></h3>
-            <p>Vui lòng kiểm tra lại xem file <b>${testId}</b> đã được lưu đúng vị trí trên GitHub chưa nhé!</p>
+            <h3 style="color: #dc2626;">❌ Không tìm thấy file: <code>${dashName}.json</code></h3>
+            <p>Code đã tìm thử ở các vị trí sau nhưng không thấy:</p>
+            <ul style="display:inline-block; text-align:left; color:#64748b; font-size:13px;">
+              ${possiblePaths.map(p => `<li>${p}</li>`).join('')}
+            </ul>
+            <br>
             <a href="index.html" class="nav-link" style="display:inline-block; margin-top:10px;">Quay về trang chủ</a>
           </div>
         `;
@@ -106,7 +113,7 @@
       document.getElementById('questionBox').innerHTML = data.questionHtml || "";
       window.TEST_DATA = { title: data.title, answers: data.answers };
 
-      // Kích hoạt toàn bộ bộ máy chấm điểm, timer, highlight
+      // Kích hoạt toàn bộ logic chấm điểm, timer, highlight
       await import('./js/app.js');
     }
 
