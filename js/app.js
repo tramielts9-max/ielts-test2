@@ -20,7 +20,7 @@ window.highlightText = (id) => {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   const isListening = !!document.querySelector('audio') || window.location.pathname.includes('lis');
 
   // Khởi tạo Timer
@@ -92,4 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (saved.radios) Object.entries(saved.radios).forEach(([name, val]) => { const el = document.querySelector(`input[name="${name}"][value="${val}"]`); if (el) el.checked = true; });
     if (saved.thoughts) Object.entries(saved.thoughts).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val; });
   }
-});
+}
+
+// Tự động chạy ngay bất kể thời điểm
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
