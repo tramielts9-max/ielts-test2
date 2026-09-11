@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>IELTS Listening Examination</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/listening.css">
+</head>
+<body class="listening-test">
+
+<div class="user-info-box">
+  <div class="user-info-field">
+    <label for="studentNameInput">👤 Họ và Tên:</label>
+    <input type="text" id="studentNameInput" placeholder="Đang đồng bộ họ tên...">
+  </div>
+  <div class="user-info-field">
+    <label for="studentEmailInput">✉️ Email Google:</label>
+    <input type="email" id="studentEmailInput" placeholder="Đang đồng bộ Email...">
+  </div>
+</div>
+
+<div class="header-bar">
+  <h1 id="testTitleHeader">IELTS Listening Test</h1>
+  <div class="header-nav"><a href="index.html" class="nav-link">🏠 Trang chủ</a></div>
+  <div class="header-controls">
+    <button class="btn-header" onclick="changeFontSize(-1)">A-</button>
+    <button class="btn-header" onclick="changeFontSize(1)">A+</button>
+    <button class="btn-header" id="btnThemeToggle" onclick="toggleTheme()">🌙 Tối/Sáng</button>
+  </div>
+  <div class="timer-container">
+    <span>⏱️ Thời gian:</span>
+    <span class="timer-display" id="timerDisplay">00:00</span>
+    <button class="btn-timer" onclick="startTimer()">▶️ Bắt đầu</button>
+    <button class="btn-timer" onclick="pauseTimer()">⏸️ Tạm dừng</button>
+  </div>
+  <div class="score-badge" id="scoreBadge">Điểm số: <span id="scoreText">0/10</span></div>
+</div>
+
+<div class="container" id="mainContainer">
+  <div class="passage-box" id="passageBox">
+    <!-- Transcript load tự động ở đây -->
+  </div>
+  <div class="resizer" id="dragResizer"><div class="resizer-icon">◄►</div></div>
+  <div class="question-box" id="questionBox">
+    <!-- Audio & Câu hỏi load tự động ở đây -->
+  </div>
+</div>
+
+<script type="module">
+  const params = new URLSearchParams(window.location.search);
+  const testId = params.get('test');
+
+  if (!testId) {
+    alert("⚠️ Không tìm thấy mã đề thi!");
+    window.location.href = 'index.html';
+  } else {
+    try {
+      const res = await fetch(`data/tests/${testId}.json`);
+      const data = await res.json();
+      
+      document.title = data.title;
+      document.getElementById('testTitleHeader').innerText = data.title;
+      document.getElementById('passageBox').innerHTML = data.transcriptHtml;
+      
+      // Gộp Audio Player và phần câu hỏi
+      const audioHtml = `
+        <div class="audio-player-container">
+          <div class="audio-player-header">🎧 <b>Audio:</b> Listen and answer questions</div>
+          <audio id="mainAudioElement" class="audio-player-element" controls preload="metadata">
+            <source src="${data.audioUrl}" type="audio/mpeg">
+          </audio>
+        </div>
+      `;
+      document.getElementById('questionBox').innerHTML = audioHtml + data.questionHtml;
+      window.TEST_DATA = { title: data.title, answers: data.answers };
+
+      await import('./js/app.js');
+    } catch (err) {
+      document.getElementById('mainContainer').innerHTML = `<p style="padding:20px;text-align:center;">❌ Lỗi nạp đề thi!</p>`;
+    }
+  }
+</script>
+</body>
+</html>
