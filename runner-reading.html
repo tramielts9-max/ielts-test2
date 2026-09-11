@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>IELTS Reading Examination</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/reading.css">
+</head>
+<body>
+
+<div class="user-info-box">
+  <div class="user-info-field">
+    <label for="studentNameInput">👤 Họ và Tên:</label>
+    <input type="text" id="studentNameInput" placeholder="Đang đồng bộ họ tên...">
+  </div>
+  <div class="user-info-field">
+    <label for="studentEmailInput">✉️ Email Google:</label>
+    <input type="email" id="studentEmailInput" placeholder="Đang đồng bộ Email...">
+  </div>
+</div>
+
+<div class="header-bar">
+  <h1 id="testTitleHeader">IELTS Reading Test</h1>
+  <div class="header-nav"><a href="index.html" class="nav-link">🏠 Trang chủ</a></div>
+  <div class="header-controls">
+    <button class="btn-header" onclick="changeFontSize(-1)">A-</button>
+    <button class="btn-header" onclick="changeFontSize(1)">A+</button>
+    <button class="btn-header" id="btnThemeToggle" onclick="toggleTheme()">🌙 Tối/Sáng</button>
+  </div>
+  <div class="timer-container">
+    <span>⏱️ Thời gian:</span>
+    <span class="timer-display" id="timerDisplay">00:00</span>
+    <button class="btn-timer" onclick="startTimer()">▶️ Bắt đầu</button>
+    <button class="btn-timer" onclick="pauseTimer()">⏸️ Tạm dừng</button>
+  </div>
+  <div class="score-badge" id="scoreBadge">Điểm số: <span id="scoreText">0/13</span></div>
+</div>
+
+<div class="container" id="mainContainer">
+  <!-- Nội dung bài đọc sẽ tự động nạp vào đây -->
+  <div class="passage-box" id="passageBox">
+    <div style="text-align:center; padding: 40px; color: var(--text-muted);">⏳ Đang tải nội dung bài đọc...</div>
+  </div>
+  <div class="resizer" id="dragResizer"></div>
+  <!-- Nội dung câu hỏi sẽ tự động nạp vào đây -->
+  <div class="question-box" id="questionBox">
+    <div style="text-align:center; padding: 40px; color: var(--text-muted);">⏳ Đang tải câu hỏi...</div>
+  </div>
+</div>
+
+<script type="module">
+  import { stateManager } from './js/state.js';
+  
+  // Tự động load đề thi dựa theo query string ?test=tên_đề
+  const params = new URLSearchParams(window.location.search);
+  const testId = params.get('test');
+
+  if (!testId) {
+    alert("⚠️ Không tìm thấy mã đề thi! Đang quay lại trang chủ.");
+    window.location.href = 'index.html';
+  } else {
+    try {
+      const res = await fetch(`data/tests/${testId}.json`);
+      const data = await res.json();
+      
+      document.title = data.title;
+      document.getElementById('testTitleHeader').innerText = data.title;
+      document.getElementById('passageBox').innerHTML = data.passageHtml;
+      document.getElementById('questionBox').innerHTML = data.questionHtml;
+      window.TEST_DATA = { title: data.title, answers: data.answers };
+
+      // Kích hoạt app logic sau khi đã nạp xong HTML đề
+      const appModule = await import('./js/app.js');
+    } catch (err) {
+      document.getElementById('mainContainer').innerHTML = `
+        <div style="padding: 30px; text-align: center; width: 100%;">
+          <h3>❌ Không tìm thấy dữ liệu đề thi: <code>${testId}</code></h3>
+          <p>Vui lòng kiểm tra lại file trong thư mục <code>data/tests/</code>.</p>
+          <a href="index.html" class="nav-link" style="display:inline-block; margin-top:10px;">Quay về trang chủ</a>
+        </div>
+      `;
+    }
+  }
+</script>
+</body>
+</html>
