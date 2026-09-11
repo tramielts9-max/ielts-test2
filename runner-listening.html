@@ -59,11 +59,17 @@
   } else {
     async function loadTest() {
       // Tự động thử các đường dẫn khác nhau để không bao giờ bị 404
+     const cleanId = testId.endsWith('.json') ? testId.slice(0, -5) : testId;
+      const normalizedDash = cleanId.replace(/\//g, '-'); // Tự động đổi '/' thành '-'
+
       const possiblePaths = [
-        testId,                                      // 1. Đúng nguyên văn: cam21-test1/p1.json
-        `${testId}.json`,                            // 2. Tự thêm .json
-        `data/tests/${testId}.json`,                 // 3. Nằm trong data/tests/
-        `data/${testId}`                             // 4. Nằm trong data/
+        testId,
+        `${testId}.json`,
+        `${normalizedDash}.json`,            // Tìm file dạng: cam21-lis-test1-p1.json ở thư mục gốc
+        `data/${normalizedDash}.json`,       // Tìm file trong thư mục data/
+        `data/tests/${normalizedDash}.json`, // Tìm file trong data/tests/
+        `data/${testId}`,
+        `data/${testId}.json`
       ];
 
       let data = null;
