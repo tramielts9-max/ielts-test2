@@ -48,6 +48,8 @@
 </div>
 
 <script type="module">
+  import { stateManager } from './js/state.js';
+
   const params = new URLSearchParams(window.location.search);
   const testId = params.get('test');
 
@@ -55,32 +57,52 @@
     alert("⚠️ Không tìm thấy mã đề thi!");
     window.location.href = 'index.html';
   } else {
-    try {
-      // Dòng mới (tự động nhận mọi đường dẫn folder):
-const filePath = testId.endsWith('.json') ? testId : `${testId}.json`;
-const res = await fetch(filePath);
-      const data = await res.json();
-      
+    async function loadTest() {
+      // Tự động thử các đường dẫn khác nhau để không bao giờ bị 404
+      const possiblePaths = [
+        testId,                                      // 1. Đúng nguyên văn: cam21-test1/p1.json
+        `${testId}.json`,                            // 2. Tự thêm .json
+        `data/tests/${testId}.json`,                 // 3. Nằm trong data/tests/
+        `data/${testId}`                             // 4. Nằm trong data/
+      ];
+
+      let data = null;
+      let loadedPath = "";
+
+      for (const path of possiblePaths) {
+        try {
+          const res = await fetch(path);
+          if (res.ok) {
+            data = await res.json();
+            loadedPath = path;
+            break;
+          }
+        } catch (e) {}
+      }
+
+      if (!data) {
+        document.getElementById('mainContainer').innerHTML = `
+          <div style="padding: 30px; text-align: center; width: 100%;">
+            <h3 style="color: #dc2626;">❌ Không tìm thấy dữ liệu đề thi: <code>${testId}</code></h3>
+            <p>Vui lòng kiểm tra lại xem file <b>${testId}</b> đã được lưu đúng vị trí trên GitHub chưa nhé!</p>
+            <a href="index.html" class="nav-link" style="display:inline-block; margin-top:10px;">Quay về trang chủ</a>
+          </div>
+        `;
+        return;
+      }
+
+      // Đổ dữ liệu vào trang
       document.title = data.title;
       document.getElementById('testTitleHeader').innerText = data.title;
-      document.getElementById('passageBox').innerHTML = data.transcriptHtml;
-      
-      // Gộp Audio Player và phần câu hỏi
-      const audioHtml = `
-        <div class="audio-player-container">
-          <div class="audio-player-header">🎧 <b>Audio:</b> Listen and answer questions</div>
-          <audio id="mainAudioElement" class="audio-player-element" controls preload="metadata">
-            <source src="${data.audioUrl}" type="audio/mpeg">
-          </audio>
-        </div>
-      `;
-      document.getElementById('questionBox').innerHTML = audioHtml + data.questionHtml;
+      document.getElementById('passageBox').innerHTML = data.passageHtml || data.transcriptHtml || "";
+      document.getElementById('questionBox').innerHTML = data.questionHtml || "";
       window.TEST_DATA = { title: data.title, answers: data.answers };
 
+      // Kích hoạt toàn bộ bộ máy chấm điểm, timer, highlight
       await import('./js/app.js');
-    } catch (err) {
-      document.getElementById('mainContainer').innerHTML = `<p style="padding:20px;text-align:center;">❌ Lỗi nạp đề thi!</p>`;
     }
+
+    loadTest();
   }
 </script>
 </body>
