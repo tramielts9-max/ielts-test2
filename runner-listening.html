@@ -56,7 +56,9 @@
     window.location.href = 'index.html';
   } else {
     try {
-      const res = await fetch(`data/tests/${testId}.json`);
+      // Dòng mới (tự động nhận mọi đường dẫn folder):
+const filePath = testId.endsWith('.json') ? testId : `${testId}.json`;
+const res = await fetch(filePath);
       const data = await res.json();
       
       document.title = data.title;
