@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cổng Luyện Thi IELTS Trực Tuyến</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    .portal-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: white; padding: 35px 20px; text-align: center; border-radius: 12px; margin-bottom: 25px;
+    }
+    .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 35px; }
+    .test-card { background: var(--bg-card); border-radius: 10px; padding: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between; }
+    .test-card:hover { transform: translateY(-2px); border-color: #0284c7; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
+    .badge-reading { background: #e0f2fe; color: #0369a1; }
+    .badge-listening { background: #fef3c7; color: #b45309; }
+    .btn-start-test { display: block; text-align: center; padding: 10px; border-radius: 6px; font-weight: 700; text-decoration: none; color: white; background: #0284c7; margin-top: 15px; }
+    .btn-start-test.lis { background: #d97706; }
+  </style>
+</head>
+<body>
+
+<div style="max-width: 1200px; margin: auto; padding: 15px;">
+  <div class="portal-hero">
+    <h1 style="margin:0 0 8px 0; font-size: 24px;">📚 CỔNG LUYỆN THI IELTS PRACTICE TESTS</h1>
+    <p style="margin:0; opacity: 0.9;">Tự động chấm điểm • AI Trợ giảng giải thích • Lưu điểm Google Drive</p>
+  </div>
+
+  <!-- 1. CỔNG ĐĂNG NHẬP HỌC VIÊN -->
+  <div class="user-info-box" style="max-width: 600px; margin: 0 auto 25px auto; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+    <h3 style="margin: 0; text-align: center;">👤 Thông Tin Học Viên</h3>
+    <input type="text" id="studentNameInput" placeholder="Nhập họ và tên..." style="padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
+    <input type="email" id="studentEmailInput" placeholder="Nhập email Google để lưu kết quả..." style="padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
+    <button type="button" class="btn-submit" onclick="saveUserAndRefresh()" style="margin-top: 5px; padding: 10px;">Đồng Bộ & Bắt Đầu Học</button>
+  </div>
+
+  <!-- 2. KHU VỰC DANH SÁCH ĐỀ THI TỰ ĐỘNG -->
+  <div id="catalogContainer">
+    <div style="text-align: center; padding: 30px; color: var(--text-muted);">⏳ Đang nạp danh mục đề thi...</div>
+  </div>
+</div>
+
+<script type="module">
+  import { stateManager } from './js/state.js';
+
+  // Tự điền thông tin học viên cũ
+  const user = stateManager.getUser();
+  if (user.name) document.getElementById('studentNameInput').value = user.name;
+  if (user.email) document.getElementById('studentEmailInput').value = user.email;
+
+  window.saveUserAndRefresh = () => {
+    const name = document.getElementById('studentNameInput').value.trim();
+    const email = document.getElementById('studentEmailInput').value.trim();
+    if (!email) { alert("⚠️ Vui lòng nhập email để hệ thống lưu bảng điểm!"); return; }
+    stateManager.saveUser(name, email);
+    alert("✅ Đã lưu thông tin học viên thành công!");
+  };
+
+  // Tự động đọc file JSON và vẽ ra danh sách đề
+  try {
+    const res = await fetch('data/catalog.json');
+    const categories = await res.json();
+    let html = '';
+
+    categories.forEach(cat => {
+      const isLis = cat.type === 'listening';
+      const badgeClass = isLis ? 'badge-listening' : 'badge-reading';
+      const badgeText = isLis ? '🎧 Listening' : '📖 Reading';
+      const btnClass = isLis ? 'btn-start-test lis' : 'btn-start-test';
+
+      html += `<h2 style="margin-top: 30px;">${cat.category}</h2><div class="test-grid">`;
+
+      cat.tests.forEach(test => {
+        html += `
+          <div class="test-card">
+            <div>
+              <span class="badge ${badgeClass}">${badgeText}</span>
+              <h3 style="margin: 0 0 8px 0;">${test.title}</h3>
+              <p style="font-size: 13.5px; color: var(--text-muted); margin: 0;">${test.desc}</p>
+            </div>
+            <a href="${test.url}" class="${btnClass}">
+              ${isLis ? '🎧 Làm Bài Nghe' : '▶️ Làm Bài Đọc'}
+            </a>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+    });
+
+    document.getElementById('catalogContainer').innerHTML = html;
+  } catch (err) {
+    document.getElementById('catalogContainer').innerHTML = `<p style="color:red; text-align:center;">Lỗi tải catalog đề thi!</p>`;
+  }
+</script>
+</body>
+</html>
